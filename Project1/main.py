@@ -1,8 +1,10 @@
 import json
+import sys
 import tkinter as tk
 import tkinter.filedialog as filedialog
 from tkinter import scrolledtext
 
+import chromadb
 import openai
 import pandas as pd
 
@@ -16,6 +18,43 @@ with open("openai_key.txt", "r") as f:
 def read_file(file_path="Project1/project_data_카카오톡채널.txt"):
     with open(file_path, "r", encoding="utf-8") as f:
         return f.read()
+
+
+# read and parse to dict
+def get_kakaotalk_doc_dict(file_path="Project1/project_data_카카오톡채널.txt"):
+    kakaotalk_str = read_file(file_path)
+    kakaotalk_str = kakaotalk_str.replace("\n\n\n", "\n\n")
+    paragraphs = kakaotalk_str.split("\n\n")
+
+    parsed = []
+    topic = None
+
+    for paragraph in paragraphs:
+        lines = paragraph.split("\n")
+        first_line = lines[0].strip()
+
+        if first_line.startswith("#"):
+            topic = first_line[1:].strip()
+            content = "\n".join(lines[1:]).strip()
+        else:
+            content = paragraph
+
+        parsed.append({"topic": topic, "content": content})
+
+    return parsed
+
+
+# parsed = get_kakaotalk_doc_dict()
+# for p in parsed:
+#     print(p, "\n")
+# sys.exit(0)
+
+
+# ### chromadb init
+# client = chromadb.PersistentClient()
+# collection = client.get_or_create_collection(
+#     name="kakaotalk_API", metadata={"hnsw:space": "l2"}
+# )
 
 
 def send_message(message_log, functions, gpt_model="gpt-3.5-turbo", temperature=0.1):
@@ -36,16 +75,13 @@ def main():
         {
             "role": "system",
             "content": """
-            You are the QnA chatbot for a KakaoTalk service.
+            You are the QnA chatbot for a KakaoTalk channel API service.
             Your user will be Korean, so communicate in Korean.
             At first, greet the user and ask how you can help.
             When user asks irrelevant questions, say 'I can't answer that' or 'I don't know'.
             """,
         },
-        {
-            "role": "assistant",
-            "content": read_file() # 텍스트 파일 통째로 넘기기
-        },
+        {"role": "assistant", "content": read_file()},  # 텍스트 파일 통째로 넘기기
     ]
 
     def show_popup_message(window, message):
