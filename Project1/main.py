@@ -76,7 +76,7 @@ def main():
         popup.update()
         return popup
 
-    def on_send():
+    def on_send(initial=False):
         user_input = user_entry.get()
         user_entry.delete(0, tk.END)
 
@@ -86,7 +86,9 @@ def main():
 
         message_log.append({"role": "user", "content": user_input})
         conversation.config(state=tk.NORMAL)  # 이동
-        conversation.insert(tk.END, f"You: {user_input}\n", "user")  # 이동
+
+        if not initial:
+            conversation.insert(tk.END, f"You: {user_input}\n", "user")  # 이동
         thinking_popup = show_popup_message(window, "처리중...")
         window.update_idletasks()
         # '생각 중...' 팝업 창이 반드시 화면에 나타나도록 강제로 설정하기
@@ -125,6 +127,8 @@ def main():
 
     send_button = tk.Button(input_frame, text="Send", command=on_send)
     send_button.pack(side=tk.RIGHT)
+
+    on_send(initial=True)
 
     window.bind("<Return>", lambda event: on_send())
     window.mainloop()
