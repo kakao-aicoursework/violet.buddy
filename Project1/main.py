@@ -36,15 +36,17 @@ def main():
         {
             "role": "system",
             "content": """
-            You are a QnA chatbot for KakaoTalk channels.
-            Your user will be Korean, so communicate in Korean, but you must not translate important keywords like 'API' and web address.
-            At first, say hi, introduce yourself, and ask how you can help.
+            You are the QnA chatbot for a KakaoTalk service.
+            Your user will be Korean, so communicate in Korean.
+            At first, greet the user and ask how you can help.
+            When user asks irrelevant questions, say 'I can't answer that' or 'I don't know'.
             """,
         },
-        {"role": "assistant", "content": read_file()},
+        {
+            "role": "assistant",
+            "content": read_file() # 텍스트 파일 통째로 넘기기
+        },
     ]
-
-    functions = []  # no need in Project 1
 
     def show_popup_message(window, message):
         popup = tk.Toplevel(window)
@@ -92,13 +94,13 @@ def main():
         thinking_popup = show_popup_message(window, "처리중...")
         window.update_idletasks()
         # '생각 중...' 팝업 창이 반드시 화면에 나타나도록 강제로 설정하기
-        response = send_message(message_log, functions)
+        response = send_message(message_log, functions=[])
         thinking_popup.destroy()
 
         message_log.append({"role": "assistant", "content": response})
 
         # 태그를 추가한 부분(1)
-        conversation.insert(tk.END, f"gpt assistant: {response}\n", "assistant")
+        conversation.insert(tk.END, f"AI Assistant: {response}\n", "assistant")
         conversation.config(state=tk.DISABLED)
         # conversation을 수정하지 못하게 설정하기
         conversation.see(tk.END)
