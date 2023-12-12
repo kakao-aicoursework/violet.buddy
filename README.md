@@ -40,3 +40,11 @@
 
 ### 한번에 파일 포맷팅
 black .; isort .; mypy .
+
+
+### 파일 실행할때
+- Project1
+  - (그냥 run 버튼으로 실행)
+- Project2
+  - cd llm_violet/Project2
+  - uvicorn main:app --host 0.0.0.0 --port 8080

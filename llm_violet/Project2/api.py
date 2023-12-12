@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import openai
-from callback import callback_handler
-from dto import ChatbotRequest
 from fastapi import BackgroundTasks, FastAPI
 from fastapi.responses import HTMLResponse
+
+from callback import callback_handler
+from dto import ChatbotRequest
 from samples import basic_card_sample, commerce_card_sample, simple_text_sample
 
 app = FastAPI()
