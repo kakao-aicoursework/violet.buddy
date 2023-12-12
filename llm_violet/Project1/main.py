@@ -18,7 +18,6 @@ channel_txt = os.path.join(dir_path, "project_data_카카오톡채널.txt")
 with open("openai_key.txt", "r") as f:
     openai_key = f.read()
     openai.api_key = openai_key
-    print("OpenAI API Key:", openai.api_key)
 
 
 # read the whole text file
