@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 import tkinter as tk
 import tkinter.filedialog as filedialog
@@ -8,20 +9,26 @@ import chromadb
 import openai
 import pandas as pd
 
+cwd = os.getcwd()
+dir_path = os.path.dirname(os.path.realpath(__file__))
+channel_txt = os.path.join(dir_path, "project_data_카카오톡채널.txt")
+
+
 # OpenAI API Key를 openai_key.txt 파일에서 읽어오기
 with open("openai_key.txt", "r") as f:
     openai_key = f.read()
     openai.api_key = openai_key
+    print("OpenAI API Key:", openai.api_key)
 
 
 # read the whole text file
-def read_file(file_path="Project1/project_data_카카오톡채널.txt"):
+def read_file(file_path=channel_txt):
     with open(file_path, "r", encoding="utf-8") as f:
         return f.read()
 
 
 # read and parse to dict
-def get_kakaotalk_doc_dict(file_path="Project1/project_data_카카오톡채널.txt"):
+def get_kakaotalk_doc_dict(file_path=channel_txt):
     kakaotalk_str = read_file(file_path)
     kakaotalk_str = kakaotalk_str.replace("\n\n\n", "\n\n")
     paragraphs = kakaotalk_str.split("\n\n")
