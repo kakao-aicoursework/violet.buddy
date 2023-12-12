@@ -3,3 +3,15 @@ uvicorn==0.22.0
 gunicorn==20.1.0
 aiohttp==3.8.5
 openai==0.28
+
+# add all requirements from example
+# need to be cleaned up
+langchain
+bs4
+requests
+pandas
+tiktoken
+pydantic
+duckduckgo-search
+types-requests
+types-beautifulsoup4
