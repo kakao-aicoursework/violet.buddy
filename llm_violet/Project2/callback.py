@@ -4,7 +4,6 @@ import os
 import time
 from typing import List
 
-import aiohttp
 import openai
 import pandas as pd
 import requests
@@ -60,7 +59,7 @@ message_log = [
 ]
 
 
-async def callback_handler(request: ChatbotRequest) -> dict:
+def callback_handler(request: ChatbotRequest) -> dict:
     # ===================== start =================================
     message_log.append(
         {"role": "user", "content": request.userRequest.utterance}
@@ -88,11 +87,7 @@ async def callback_handler(request: ChatbotRequest) -> dict:
     # 참고링크1 : https://kakaobusiness.gitbook.io/main/tool/chatbot/skill_guide/ai_chatbot_callback_guide
     # 참고링크1 : https://kakaobusiness.gitbook.io/main/tool/chatbot/skill_guide/answer_json_format
 
-    time.sleep(0.1)
-
     url = request.userRequest.callbackUrl
 
     if url:
-        async with aiohttp.ClientSession() as session:
-            async with session.post(url=url, json=payload, ssl=False) as resp:
-                await resp.json()
+        requests.post(url, json=payload)
