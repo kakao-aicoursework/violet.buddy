@@ -2,10 +2,6 @@ fastapi==0.100.0
 uvicorn==0.22.0
 gunicorn==20.1.0
 openai==0.28
-
-# add all requirements from example
-# need to be cleaned up
-langchain
 bs4
 requests
 pandas
@@ -14,3 +10,4 @@ pydantic
 duckduckgo-search
 types-requests
 types-beautifulsoup4
+chromadb==0.4.5
