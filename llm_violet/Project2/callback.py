@@ -38,16 +38,6 @@ def send_message(message_log, gpt_model="gpt-3.5-turbo", temperature=0.1):
 
 
 message_log = []
-SYSTEM_MSG = """
-You are the QnA chatbot for a KakaoTalk channel API service.
-At first, greet the user and ask how you can help.
-Refer to the technical document and answer to the question.
-Your user will be Korean, so communicate in Korean.
-When user asks irrelevant questions, say 'I can't answer that' or 'I don't know'.
-
-document:
-{document}
-"""
 
 
 def callback_handler(request: ChatbotRequest) -> dict:
@@ -60,7 +50,7 @@ def callback_handler(request: ChatbotRequest) -> dict:
 
     global message_log
     if not message_log:
-        message_log = [("system", SYSTEM_MSG)]
+        message_log = [("system", read_file("system_message_template.txt"))]
 
     message_log.append(("human", request.userRequest.utterance))
 
@@ -71,7 +61,7 @@ def callback_handler(request: ChatbotRequest) -> dict:
         verbose=True,
     )
     ai_response = chain.run(
-        document=read_file(),
+        document=read_file("project_data_카카오톡채널.txt"),
     )
 
     message_log.append(("ai", ai_response))
@@ -86,7 +76,7 @@ def callback_handler(request: ChatbotRequest) -> dict:
     }
     # ===================== end =================================
     # 참고링크1 : https://kakaobusiness.gitbook.io/main/tool/chatbot/skill_guide/ai_chatbot_callback_guide
-    # 참고링크1 : https://kakaobusiness.gitbook.io/main/tool/chatbot/skill_guide/answer_json_format
+    # 참고링크2 : https://kakaobusiness.gitbook.io/main/tool/chatbot/skill_guide/answer_json_format
 
     url = request.userRequest.callbackUrl
 
