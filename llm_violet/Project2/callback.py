@@ -1,23 +1,13 @@
-import datetime
-import logging
 import os
-import time
 from typing import List
 
 import openai
-import pandas as pd
 import requests
-import tiktoken
-from bs4 import BeautifulSoup
 from langchain import LLMChain
 from langchain.chat_models import ChatOpenAI
-from langchain.prompts.chat import (ChatPromptTemplate,
-                                    HumanMessagePromptTemplate)
-from langchain.schema import SystemMessage
-from langchain.utilities import DuckDuckGoSearchAPIWrapper
+from langchain.prompts.chat import ChatPromptTemplate
 
 from dto import ChatbotRequest
-from samples import list_card
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 channel_txt = os.path.join(dir_path, "project_data_카카오톡채널.txt")
@@ -25,12 +15,14 @@ channel_txt = os.path.join(dir_path, "project_data_카카오톡채널.txt")
 
 # OpenAI API Key 파일에서 읽어오기
 with open("openai_key.txt", "r") as f:
-    openai.api_key = f.read()
+    k = f.read()
+    openai.api_key = k
+    os.environ["OPENAI_API_KEY"] = k
 
 
 # read the whole text file
 def read_file(file_path=channel_txt):
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, "r") as f:
         return f.read()
 
 
@@ -45,43 +37,52 @@ def send_message(message_log, gpt_model="gpt-3.5-turbo", temperature=0.1):
     return response_message.content
 
 
+message_log = []
 SYSTEM_MSG = """
 You are the QnA chatbot for a KakaoTalk channel API service.
-Your user will be Korean, so communicate in Korean.
 At first, greet the user and ask how you can help.
+Refer to the technical document and answer to the question.
+Your user will be Korean, so communicate in Korean.
 When user asks irrelevant questions, say 'I can't answer that' or 'I don't know'.
-"""
-logger = logging.getLogger("Callback")
 
-message_log = [
-    {"role": "system", "content": SYSTEM_MSG},
-    {"role": "assistant", "content": read_file()},  # 텍스트 파일 통째로 넘기기
-]
+document:
+{document}
+"""
 
 
 def callback_handler(request: ChatbotRequest) -> dict:
     # ===================== start =================================
-    message_log.append(
-        {"role": "user", "content": request.userRequest.utterance}
+    llm = ChatOpenAI(
+        temperature=0.1,
+        max_tokens=300,
+        model="gpt-3.5-turbo",
     )
 
-    output_text = send_message(
-        message_log=message_log,
-        gpt_model="gpt-3.5-turbo",
-        temperature=0,
+    global message_log
+    if not message_log:
+        message_log = [("system", SYSTEM_MSG)]
+
+    message_log.append(("human", request.userRequest.utterance))
+
+    message_log_prompt = ChatPromptTemplate.from_messages(message_log)
+    chain = LLMChain(
+        llm=llm,
+        prompt=message_log_prompt,
+        verbose=True,
+    )
+    ai_response = chain.run(
+        document=read_file(),
     )
 
-    message_log.append(
-        {"role": "assistant", "content": output_text}
-    )
+    message_log.append(("ai", ai_response))
 
     # logging
-    logger.info(f"output_text: {output_text}")
+    print(f"output_text: {ai_response}")
 
     # 참고링크 통해 payload 구조 확인 가능
     payload = {
         "version": "2.0",
-        "template": {"outputs": [{"simpleText": {"text": output_text}}]},
+        "template": {"outputs": [{"simpleText": {"text": ai_response}}]},
     }
     # ===================== end =================================
     # 참고링크1 : https://kakaobusiness.gitbook.io/main/tool/chatbot/skill_guide/ai_chatbot_callback_guide
