@@ -6,11 +6,11 @@ import requests
 from langchain import LLMChain
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts.chat import ChatPromptTemplate
+from langchain.chains import ConversationChain, LLMChain
+from langchain.chat_models import ChatOpenAI
+from langchain.prompts.chat import ChatPromptTemplate
 
 from dto import ChatbotRequest
-
-dir_path = os.path.dirname(os.path.realpath(__file__))
-channel_txt = os.path.join(dir_path, "project_data_카카오톡채널.txt")
 
 
 # OpenAI API Key 파일에서 읽어오기
@@ -21,7 +21,7 @@ with open("openai_key.txt", "r") as f:
 
 
 # read the whole text file
-def read_file(file_path=channel_txt):
+def read_file(file_path: str) -> str:
     with open(file_path, "r") as f:
         return f.read()
 
@@ -52,6 +52,7 @@ def callback_handler(request: ChatbotRequest) -> dict:
     if not message_log:
         message_log = [("system", read_file("system_message_template.txt"))]
 
+    # 모든 발화를 message_log에 추가하는 것은 좋지 않다
     message_log.append(("human", request.userRequest.utterance))
 
     message_log_prompt = ChatPromptTemplate.from_messages(message_log)
