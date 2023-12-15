@@ -1,16 +1,12 @@
 # -*- coding: utf-8 -*-
-import openai
 import os
 
-from langchain.document_loaders import (
-    NotebookLoader,
-    TextLoader,
-    UnstructuredMarkdownLoader,
-)
+import openai
+from langchain.document_loaders import (NotebookLoader, TextLoader,
+                                        UnstructuredMarkdownLoader)
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores.chroma import Chroma
-
 
 # OpenAI API Key 파일에서 읽어오기
 with open("openai_key.txt", "r") as f:
@@ -35,7 +31,7 @@ def upload_embedding_from_file(file_path):
 
     text_splitter = CharacterTextSplitter(chunk_size=300, chunk_overlap=50)
     docs = text_splitter.split_documents(documents)
-    print(docs, end='\n\n\n')
+    print(docs, end="\n\n\n")
 
     Chroma.from_documents(
         docs,
@@ -43,9 +39,7 @@ def upload_embedding_from_file(file_path):
         collection_name=CHROMA_COLLECTION_NAME,
         persist_directory=CHROMA_PERSIST_DIR,
     )
-    print('db success')
+    print("db success")
 
 
 upload_embedding_from_file("llm_violet/Project2/project_data_카카오톡채널.txt")
-
-

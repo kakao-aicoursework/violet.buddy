@@ -1,17 +1,13 @@
 import os
-from typing import List
+from typing import Any, List, Tuple
 
 import openai
 import requests
+from dto import ChatbotRequest
 from langchain import LLMChain
-from langchain.chat_models import ChatOpenAI
-from langchain.prompts.chat import ChatPromptTemplate
 from langchain.chains import ConversationChain, LLMChain
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts.chat import ChatPromptTemplate
-
-from dto import ChatbotRequest
-
 
 # OpenAI API Key 파일에서 읽어오기
 with open("openai_key.txt", "r") as f:
@@ -37,7 +33,7 @@ def send_message(message_log, gpt_model="gpt-3.5-turbo", temperature=0.1):
     return response_message.content
 
 
-message_log = []
+message_log: List[Tuple[str, str]] = []
 
 
 def callback_handler(request: ChatbotRequest) -> dict:

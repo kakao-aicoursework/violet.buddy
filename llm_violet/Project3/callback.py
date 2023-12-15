@@ -3,16 +3,12 @@ from typing import List, Tuple
 
 import openai
 import requests
+from dto import ChatbotRequest
 from langchain import LLMChain
-from langchain.chat_models import ChatOpenAI
-from langchain.prompts.chat import ChatPromptTemplate
 from langchain.chains import ConversationChain, LLMChain
 from langchain.chat_models import ChatOpenAI
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.prompts.chat import ChatPromptTemplate
-
-from dto import ChatbotRequest
-
 from langchain.vectorstores.chroma import Chroma
 
 # OpenAI API Key 파일에서 읽어오기
