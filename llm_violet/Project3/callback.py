@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, Tuple
 
 import openai
 import requests
@@ -8,10 +8,12 @@ from langchain.chat_models import ChatOpenAI
 from langchain.prompts.chat import ChatPromptTemplate
 from langchain.chains import ConversationChain, LLMChain
 from langchain.chat_models import ChatOpenAI
+from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.prompts.chat import ChatPromptTemplate
 
 from dto import ChatbotRequest
 
+from langchain.vectorstores.chroma import Chroma
 
 # OpenAI API Key 파일에서 읽어오기
 with open("openai_key.txt", "r") as f:
@@ -37,11 +39,39 @@ def send_message(message_log, gpt_model="gpt-3.5-turbo", temperature=0.1):
     return response_message.content
 
 
-message_log = []
+def get_chroma_db() -> Chroma:
+    PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+    CHROMA_PERSIST_DIR = os.path.join(PROJECT_DIR, "chroma-persist")
+    CHROMA_COLLECTION_NAME = "dosu-bot"
+
+    _db = Chroma(
+        persist_directory=CHROMA_PERSIST_DIR,
+        embedding_function=OpenAIEmbeddings(),
+        collection_name=CHROMA_COLLECTION_NAME,
+    )
+    return _db
+    # _retriever = _db.as_retriever()
+
+
+def query_db(db: Chroma, query: str, use_retriever: bool = False) -> list[str]:
+    _retriever = db.as_retriever()
+    if use_retriever:
+        docs = _retriever.get_relevant_documents(query)
+    else:
+        docs = db.similarity_search(query)
+
+    str_docs = [doc.page_content for doc in docs]
+    return str_docs
+
+
+message_log: List[Tuple[str, str]] = []
 
 
 def callback_handler(request: ChatbotRequest) -> dict:
     # ===================== start =================================
+
+    db = get_chroma_db()
+
     llm = ChatOpenAI(
         temperature=0.1,
         max_tokens=300,
@@ -52,8 +82,10 @@ def callback_handler(request: ChatbotRequest) -> dict:
     if not message_log:
         message_log = [("system", read_file("system_message_template.txt"))]
 
+    user_message = request.userRequest.utterance
+
     # 모든 발화를 message_log에 추가하는 것은 좋지 않다
-    message_log.append(("human", request.userRequest.utterance))
+    message_log.append(("human", user_message))
 
     message_log_prompt = ChatPromptTemplate.from_messages(message_log)
     chain = LLMChain(
@@ -65,9 +97,8 @@ def callback_handler(request: ChatbotRequest) -> dict:
     #     document=read_file("project_data_카카오톡채널.txt"),
     # )
     ai_response = chain.run(
-        document=search_from_db(),
+        document=query_db(db, user_message),
     )
-    
 
     message_log.append(("ai", ai_response))
 
