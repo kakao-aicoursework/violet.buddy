@@ -14,11 +14,13 @@
 
 ### TODO
 - ✅ 들어가면 인사부터 하는거
-- 🟦 데이터 정형화
+- ❄️ 데이터 정형화
   - LLM에서 데이터를 알아듣는 정도
   - 평문 < 구분자로 구분된 평문 < 테이블 < JSON
-- 🟦 벡터DB 생성하여 데이터 넣기
-- 🟦 벡터DB에서 가장 유사한 구문을 추출
+- ✅ 벡터DB 생성하여 데이터 넣기
+- ✅ 벡터DB에서 가장 유사한 구문을 추출
+- 🟦 데이터 정형화
+  - 문서에 #으로 구분된 단락이 6개고 이 단락 기준으로 문맥이 가장 확실하게 나뉘니까 컬렉션 안에 문서를 6조각으로 나누어 넣기
 
 
 ### 벡터디비 호출 팁
@@ -39,8 +41,16 @@ black .; isort .; mypy .
 
 
 ### 파일 실행할때
+- local에서 가상환경 켜기
+  - conda activate ai_llm_edu
+  - (개인 맥북에서만 해당됨)
 - Project1
-  - (그냥 run 버튼으로 실행)
+  - python3 llm_violet/Project1/main.py
+    - 또는 그냥 run 버튼으로 실행
 - Project2
   - cd llm_violet/Project2
   - uvicorn main:app --host 0.0.0.0 --port 8080
+- Project3
+  - cd llm_violet/Project3
+  - uvicorn main:app --host 0.0.0.0 --port 8080
+  - conda activate ai_llm_edu
