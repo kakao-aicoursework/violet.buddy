@@ -1,0 +1,13 @@
+fastapi==0.100.0
+uvicorn==0.22.0
+gunicorn==20.1.0
+openai==0.28
+bs4
+requests
+pandas
+tiktoken
+pydantic
+duckduckgo-search
+types-requests
+types-beautifulsoup4
+chromadb==0.4.5

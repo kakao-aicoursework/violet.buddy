@@ -166,4 +166,4 @@ cython_debug/
 openai_key.txt
 chroma/chroma.sqlite3
 .vscode/
-llm_violet/Project2/chroma-persist
+llm_violet/*/chroma-persist
