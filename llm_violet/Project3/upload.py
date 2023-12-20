@@ -14,24 +14,32 @@ with open("openai_key.txt", "r") as f:
     openai.api_key = k
     os.environ["OPENAI_API_KEY"] = k
 
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+CHROMA_PERSIST_DIR = os.path.join(PROJECT_DIR, "chroma-persist")
+CHROMA_COLLECTION_NAME = "dosu-bot"
+LOADER_DICT = {
+    "py": TextLoader,
+    "txt": TextLoader,
+    "md": UnstructuredMarkdownLoader,
+    "ipynb": NotebookLoader,
+}
+
 
 def upload_embedding_from_file(file_path):
-    CHROMA_PERSIST_DIR = "llm_violet/Project3/chroma-persist"
-    CHROMA_COLLECTION_NAME = "dosu-bot"
-    LOADER_DICT = {
-        "py": TextLoader,
-        "txt": TextLoader,
-        "md": UnstructuredMarkdownLoader,
-        "ipynb": NotebookLoader,
-    }
     loader = LOADER_DICT.get(file_path.split(".")[-1])
     if loader is None:
         raise ValueError("Not supported file type")
     documents = loader(file_path).load()
 
-    text_splitter = CharacterTextSplitter(chunk_size=300, chunk_overlap=50)
+    text_splitter = CharacterTextSplitter(
+        separator="\n#",
+        chunk_size=300,
+        chunk_overlap=50,
+    )
     docs = text_splitter.split_documents(documents)
-    print(docs, end="\n\n\n")
+    for d in docs:
+        print(d, end="\n\n")
+    print("\n\n\n")
 
     Chroma.from_documents(
         docs,
@@ -42,4 +50,17 @@ def upload_embedding_from_file(file_path):
     print("db success")
 
 
-upload_embedding_from_file("llm_violet/Project3/project_data_카카오톡채널.txt")
+def clear_collection():
+    _db = Chroma(
+        persist_directory=CHROMA_PERSIST_DIR,
+        embedding_function=OpenAIEmbeddings(),
+        collection_name=CHROMA_COLLECTION_NAME,
+    )
+    _db.delete_collection()
+
+
+if __name__ == "__main__":
+    clear_collection()
+    upload_embedding_from_file(os.path.join(PROJECT_DIR, "project_data_카카오소셜.txt"))
+    upload_embedding_from_file(os.path.join(PROJECT_DIR, "project_data_카카오싱크.txt"))
+    upload_embedding_from_file(os.path.join(PROJECT_DIR, "project_data_카카오톡채널.txt"))
